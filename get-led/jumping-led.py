@@ -14,3 +14,5 @@ while True:
         gp.output(led, 1)
         time.sleep(light_time)
         gp.output(led, 0)
+    for led in leds[:num]:
+        gp.output(led, num)
