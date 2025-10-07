@@ -8,13 +8,17 @@ class R2R_DAC:
 
         gp.setmode(gp.BCM)
         gp.setup(self.gpio_bits, gp.OUT, initial = 0)
-    def definit(self):
+
+    def deinit(self):
         gp.output(self.gpio_bits, 0)
         gp.cleanup()
     def set_number(self, number):
+        if (number < 0 or number >255):
+            number = 0
         gp.output(self.gpio_bits, [int(element) for element in bin(number)[2:].zfill(8)])
+
     def set_voltage(self, voltage):
-        set_number(self, voltage)
+        self.set_number(int(voltage / self.dynamic_range*255))
 
 if __name__ == "__main__":
     dac = R2R_DAC([16, 20, 21, 25, 26, 17, 27, 22], 3.183, True)
