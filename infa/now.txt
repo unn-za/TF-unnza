@@ -1,14 +1,45 @@
-if __name__ == "__main__":
-    try:
-        dac = PWM_DAC(12, 500, 3.290, True)
-        
-        while True:
-            try:
-                voltage = float(input("Введите напряжение в Вольтах: "))
-                dac.set_voltage(voltage)
+raspi-gpio set 2 a0
+raspi-gpio set 3 a0
+После выставления пинам GPIO2 и GPIO3 первой альтернативной функции (функции ножек линий SDA и SCL устройства i2c1) стоит убедиться в корректности выставления этих функций командой:
 
-            except ValueError:
-                print("Вы ввели не число. Попробуйте ещё раз\n")
+raspi-gpio get
+Подготовка
+В папке get-dac создайте файл mcp4725_driver.py и пишите в нём новый модуль
+Инструкция
+Импортируйте модуль работы с I2C шиной
+import smbus
+Объявите класс MCP4725
+Реализуйте конструктор объекта класса
+def __init__(self, dynamic_range, address=0x61, verbose = True):
+    self.bus = smbus.SMBus(1)
+    
+    self.address = address
+    self.wm = 0x00
+    self.pds = 0x00
+    
+    self.verbose = verbose
+    self.dynamic_range = dynamic_range
+Реализуйте «деструктор»
+def deinit(self):
+    self.bus.close()
+Реализуйте метод set_number(self, number), который отправляет в микросхему MCP4725 три байта:
+Адрес микросхемы и флаг чтения/записи
+Байт с настройками и четырьмя старшими битами
+Байт с восемью младшими битами
+def set_number(self, number):
+    if not isinstance(number, int):
+        print("На вход ЦАП можно подавать только целые числа")
 
-    finally:
-        dac.deinit()
+    if not (0 <= number <= 4095):
+        print("Число выходит за разраядность MCP4752 (12 бит)")
+
+    first_byte = self.wm | self.pds | number >> 8
+    second_byte = number & 0xFF
+    self.bus.write_byte_data(0x61, first_byte, second_byte)
+
+    if self.verbose:
+        print(f"Число: {number}, отправленные по I2C данные: [0x{(self.address << 1):02X}, 0x{first_byte:02X}, 0x{second_byte:02X}]\n")
+Реализуйте метод set_voltage(self, voltage), который выставляет напряжение на выходе микросхемы MCP4725
+Реалиуйте основной охранник, как в заданиях 8-битный R2R ЦАП в виде класса и ЦАП на ШИМ
+Завершение задания
+Добавьте модуль mcp4725_driver.py в репозиторий get, сделайте коммит и отправьте изменения на сервер
