@@ -1,1 +1,14 @@
-bla bla blee bla bla bluu
+if __name__ == "__main__":
+    try:
+        dac = PWM_DAC(12, 500, 3.290, True)
+        
+        while True:
+            try:
+                voltage = float(input("Введите напряжение в Вольтах: "))
+                dac.set_voltage(voltage)
+
+            except ValueError:
+                print("Вы ввели не число. Попробуйте ещё раз\n")
+
+    finally:
+        dac.deinit()
