@@ -3,9 +3,9 @@ import signal_generator as sg
 import time
 amplitude = 3.2
 signal_frequency = 10
-sampling_frequency = 1000
+sampling_frequency = 500
 if __name__ == "__main__":
-    dac = pm.PWM_DAC(12, 500, 3.290, True)
+    dac = pm.PWM_DAC(12, 5000, 3.290, True)
     while True:
         try:
             sg.wait_for_sampling_period(sampling_frequency)

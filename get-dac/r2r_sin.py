@@ -3,9 +3,9 @@ import signal_generator as sg
 import time
 import RPi.GPIO as gp
 gp.setmode(gp.BCM)
-amplitude = 3.2
-signal_frequency = 10
-sampling_frequency = 1000
+amplitude = 1
+signal_frequency = 1
+sampling_frequency = 10
 if __name__ == "__main__":
     dac = r2r.R2R_DAC([16, 20, 21, 25, 26, 17, 27, 22], 3.183, True)
     while True:
