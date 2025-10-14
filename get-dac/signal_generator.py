@@ -4,5 +4,5 @@ def get_sin_wave_amplitude(freq, time):
     return((1+np.sin(2*np.pi*freq*time))/2)
 def wait_for_sampling_period(sampling_frequency):
     time.sleep(1/sampling_frequency)
-# def get_triangle_wave_amplitude(freq, time):
-    
+def get_trian_wave_amplitude(freq, time):
+    return(abs(round(freq*time)-freq*time))
