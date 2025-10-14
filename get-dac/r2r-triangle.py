@@ -11,6 +11,6 @@ if __name__ == "__main__":
     while True:
         try:
             sg.wait_for_sampling_period(sampling_frequency)
-            dac.set_voltage(amplitude*sg.get_sin_wave_amplitude(signal_frequency, time.time()))
+            dac.set_voltage(amplitude*sg.get_trian_wave_amplitude(signal_frequency, time.time()))
         finally:
             pass 
