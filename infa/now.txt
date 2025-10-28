@@ -1,48 +1,34 @@
-import smbus
+from r2r_adc import R2R_ADC
+from adc_plot import plot_voltage_vs_time as plot, plot_sampling_period_hist as hist
+from time import time, sleep
 
-class MCP4725:
-    def __init__(self, dynamic_range, address=0x61, verbose = True):
-        self.bus = smbus.SMBus(1)
-        
-        self.address = address
-        self.wm = 0x00
-        self.pds = 0x00
-        
-        self.verbose = verbose
-        self.dynamic_range = dynamic_range
-
-    def deinit(self):
-        self.bus.close()
-    def set_number(self, number):
-        if not isinstance(number, int):
-            print("На вход ЦАП можно подавать только целые числа")
-
-        if not (0 <= number <= 4095):
-            print("Число выходит за разраядность MCP4752 (12 бит)")
-
-        first_byte = self.wm | self.pds | number >> 8
-        second_byte = number & 0xFF
-        self.bus.write_byte_data(0x61, first_byte, second_byte)
-        if self.verbose:
-            print(f"Число: {number}, отправленные по I2C данные: [0x{(self.address << 1):02X}, 0x{first_byte:02X}, 0x{second_byte:02X}]\n")
-    def set_voltage(self, voltage):
-        if voltage < 0 or voltage > self.dynamic_range:
-            voltage = 0
-            print("tfkyadoin?")
-        number = int((voltage / self.dynamic_range)*4095)
-        self.set_number(number)
-        
+voltage_values = list()
+time_values = list()
+sampling_periods = list()
+duration = 3.
+max_voltage = 3.56
 
 if __name__ == "__main__":
-    dac = MCP4725(5, 0x61, True)
     try:
-        while True:
-            try:
-                voltage = float(input("Введите напряжение в Вольтах: "))
-                dac.set_voltage(voltage)
+        adc = R2R_ADC(3.29)
+        for _ in range(3, 0, -1):
+            print(f"Установка готова, начало измерений через {_}...", end='\b\r')
+            sleep(1)
+        print("Установка готова, измеряем...                  ")
 
-            except ValueError:
-                print("Вы ввели не число. Попробуйте ещё раз\n")
+        exp_start = time()
+        while time() - exp_start <= duration:
+            voltage_values.append(adc.get_sc_voltage())
+            time_values.append(time() - exp_start)
 
-    finally:
-        dac.deinit()
+        for i in range(1, len(time_values)):
+            sampling_periods.append(time_values[i] - time_values[i-1])
+
+        print("Измерения завершены.")
+
+        plot(time_values, voltage_values, max_voltage, duration)
+        hist(sampling_periods, max(sampling_periods))  # 
+    except KeyboardInterrupt:
+        print("Выключение...")
+    except Exception as e:
+        print(f"Ошибка: \"[{e.__class__.__name__}]: {e.args if len(e.args) > 0 else '<no args>'}\"")
