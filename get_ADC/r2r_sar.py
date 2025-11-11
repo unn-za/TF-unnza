@@ -6,16 +6,15 @@ adc = r2.R2R_ADC(3.18, 0.001)
 voltage_values = list()
 time_values = list()
 sampling_periods = list()
-duration = 5.0
+duration = 3.0
 max_voltage = 3.183
 
 if __name__ == "__main__":
 
     try:
-       
         exp_start = time.time()
         while time.time() - exp_start <= duration:
-            voltage_values.append(adc.get_sc_voltage())
+            voltage_values.append(adc.get_sar_voltage())
             time_values.append(time.time() - exp_start)
 
         for i in range(1, len(time_values)):
